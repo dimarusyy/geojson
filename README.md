@@ -1,2 +1,6 @@
 # geojson
-GeoJSON header-only implementation
+GeoJSON header-only library
+
+# Requirements
+C++17
+boost
