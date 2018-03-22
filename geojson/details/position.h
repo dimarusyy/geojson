@@ -9,6 +9,10 @@
 #include <boost/mpl/at.hpp>
 #include <boost/mpl/next_prior.hpp>
 
+#include <boost/fusion/include/vector.hpp>
+#include <boost/fusion/sequence/intrinsic/at_c.hpp>
+#include <boost/fusion/include/at_c.hpp>
+
 #include <vector>
 #include <list>
 #include <numeric>
@@ -153,6 +157,8 @@ namespace geojson
 			using multipolygon_t = typename primitive_types<T>::multipolygon_t;
 
 			using types = boost::mpl::vector<boost::blank, point_t, line_t, polygon_t, multipoint_t, multiline_t, multipolygon_t>;
+			using ftypes = boost::fusion::vector<boost::blank, point_t, line_t, polygon_t, multipoint_t, multiline_t, multipolygon_t>;
+
 			using variant_type = typename boost::make_variant_over<types>::type;
 
 			using next_types = boost::mpl::map<
@@ -189,22 +195,6 @@ namespace geojson
 				{
 					_value = TPrimitive(points);
 				}
-			}
-
-			template <typename ...Args,
-				typename = typename std::enable_if_t<std::conjunction_v<std::is_constructible<point_t, Args>...>>>
-				position_t(Args...args)
-			{
-// 				std::initializer_list<point_t> points{ point_t(args)... };
-// 				if constexpr(std::is_same_v<TPrimitive, boost::blank>)
-// 				{
-// 					using point_t_next_t = typename boost::mpl::at<next_types, point_t>::type;
-// 					_value = point_t_next_t(points);
-// 				}
-// 				else
-// 				{
-// 					_value = TPrimitive(points);
-// 				}
 			}
 
 			template <typename Default = TPrimitive>
@@ -267,7 +257,7 @@ namespace geojson
 			{
 				return boost::get<U>(_value);
 			}
-
+		
 		protected:
 			template <typename Original, typename Result, typename Default = TPrimitive>
 			void construct(const std::initializer_list<position_t<Default, T>>& il)

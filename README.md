@@ -2,5 +2,5 @@
 GeoJSON header-only library
 
 # Requirements
-C++17
-boost
+* C++17
+* boost
