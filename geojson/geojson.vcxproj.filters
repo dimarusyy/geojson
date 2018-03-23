@@ -30,6 +30,9 @@
     <ClInclude Include="details\position.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
+    <ClInclude Include="details\position_clang.h">
+      <Filter>Header Files\details</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
