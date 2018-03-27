@@ -14,32 +14,24 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Header Files\details">
-      <UniqueIdentifier>{599c5e46-306d-4107-9ba8-5134c03473de}</UniqueIdentifier>
+      <UniqueIdentifier>{130a02d2-d8d6-4bf7-94c2-3c5ad3b6405b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="details\primitives.h">
+      <Filter>Header Files\details</Filter>
     </ClInclude>
     <ClInclude Include="geojson.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="details\position.h">
+    <ClInclude Include="details\properties.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
-    <ClInclude Include="details\position_clang.h">
+    <ClInclude Include="details\geometry.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\README.md" />
+    <ClInclude Include="details\translator.h">
+      <Filter>Header Files\details</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
