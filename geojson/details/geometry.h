@@ -38,10 +38,9 @@ namespace geojson
 
 			operator boost::property_tree::ptree()
 			{
-				constexpr auto GEOMETRY_KEY = "geometry";
-
-				boost::property_tree::ptree node;
-				node.add_child(TYPE_KEY, )
+ 				boost::property_tree::ptree node;
+// 				node.add_child(TYPE_KEY, )
+				return node;
 			}
 
 
@@ -80,8 +79,8 @@ namespace geojson
 
 			struct add_to_node_visitor : boost::static_visitor<boost::property_tree::ptree>
 			{
-				constexpr auto TYPE_KEY = "type";
-				constexpr auto COORDINATES_KEY = "coordinates";
+				static constexpr auto TYPE_KEY = "type";
+				static constexpr auto COORDINATES_KEY = "coordinates";
 
 				void operator()(const boost::blank& v) const 
 				{

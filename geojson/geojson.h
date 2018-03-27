@@ -3,6 +3,8 @@
 #include "details/primitives.h"
 #include "details/geometry.h"
 
+#include "details/translator.h"
+
 namespace geojson
 {
 	//////////////////////////////////////////////////////////////////////////
