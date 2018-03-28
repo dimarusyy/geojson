@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include <type_traits>
 #include <exception>
@@ -40,21 +41,34 @@ namespace geojson
 				return !(*this == other);
 			}
 
+			friend std::ostream &operator<<(std::ostream &os, const point_t<T> &obj)
+			{
+				os << "{" << obj._x << "," << obj._y << "}";
+				return os;
+			}
 		};
 
 		template <typename T>
 		struct line_t
 		{
 			using value_type = std::vector<point_t<T>>;
+			
+			line_t() = default;
 
 			template <typename...Args>
 			line_t(Args...args)
 			{
 				static_assert(std::conjunction_v<std::is_constructible<point_t<T>, Args>...>, __FUNCTION__);	
-				static_assert(sizeof...(Args) > 1, "");
+				static_assert(sizeof...(Args) > 1, "expected more then 1 argument");
 
 				std::initializer_list<point_t<T>> il{ args... };
 				_value = value_type(std::begin(il), std::end(il));
+			}
+
+			template <typename Iterator>
+			line_t(Iterator b_it, Iterator e_it, typename std::enable_if_t<!std::is_constructible_v<point_t<T>, Iterator>>* = 0)
+			{
+				_value = value_type(b_it, e_it);
 			}
 
 			line_t(std::initializer_list<point_t<T>> il)
@@ -67,6 +81,14 @@ namespace geojson
 				return _value;
 			}
 
+			friend std::ostream &operator<<(std::ostream &os, const line_t<T> &obj)
+			{
+				os << "{";
+				for (const auto& el : obj.get())
+					os << "{" << el << "}" << ",";
+				os << "}";
+				return os;
+			}
 		private:
 			value_type _value;
 		};
@@ -88,6 +110,12 @@ namespace geojson
 				for (const auto& le : _value) is_ring(le);
 			}
 
+			template <typename Iterator>
+			polygon_t(Iterator b_it, Iterator e_it, typename std::enable_if_t<!std::is_constructible_v<line_t<T>, Iterator>>* = 0)
+			{
+				_value = value_type(b_it, e_it);
+			}
+
 			polygon_t(std::initializer_list<line_t<T>> il)
 			{
 				_value = value_type(std::begin(il), std::end(il));
@@ -96,6 +124,15 @@ namespace geojson
 			value_type get() const
 			{
 				return _value;
+			}
+
+			friend std::ostream &operator<<(std::ostream &os, const polygon_t<T> &obj)
+			{
+				os << "{";
+				for (const auto& el : obj.get())
+					os << "{" << el << "}" << ",";
+				os << "}";
+				return os;
 			}
 
 		private:
