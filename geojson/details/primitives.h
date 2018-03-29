@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/algorithm/string.hpp>
+#include <boost/range/adaptors.hpp>
+
 #include <iostream>
 #include <vector>
 #include <type_traits>
@@ -55,18 +58,8 @@ namespace geojson
 			
 			line_t() = default;
 
-			template <typename...Args>
-			line_t(Args...args)
-			{
-				static_assert(std::conjunction_v<std::is_constructible<point_t<T>, Args>...>, __FUNCTION__);	
-				static_assert(sizeof...(Args) > 1, "expected more then 1 argument");
-
-				std::initializer_list<point_t<T>> il{ args... };
-				_value = value_type(std::begin(il), std::end(il));
-			}
-
 			template <typename Iterator>
-			line_t(Iterator b_it, Iterator e_it, typename std::enable_if_t<!std::is_constructible_v<point_t<T>, Iterator>>* = 0)
+			line_t(Iterator b_it, Iterator e_it/*, typename std::enable_if_t<!std::is_constructible_v<point_t<T>, Iterator>>* = 0*/)
 			{
 				_value = value_type(b_it, e_it);
 			}
@@ -84,8 +77,12 @@ namespace geojson
 			friend std::ostream &operator<<(std::ostream &os, const line_t<T> &obj)
 			{
 				os << "{";
-				for (const auto& el : obj.get())
-					os << "{" << el << "}" << ",";
+				os << boost::algorithm::join(obj.get() | boost::adaptors::transformed([&](const auto& p)
+				{
+					std::stringstream ss;
+					ss << p;
+					return ss.str();
+				}), ",");
 				os << "}";
 				return os;
 			}
@@ -99,26 +96,19 @@ namespace geojson
 			static const size_t POLYGON_MIN_ELEMENTS = 4U;
 			using value_type = std::vector<line_t<T>>;
 
-			template <typename...Args>
-			polygon_t(Args...args)
-			{
-				static_assert(std::conjunction_v<std::is_constructible<line_t<T>, Args>...>, __FUNCTION__);
-
-				std::initializer_list<line_t<T>> il{ args... };
-				_value = value_type(std::begin(il), std::end(il));
-
-				for (const auto& le : _value) is_ring(le);
-			}
+			polygon_t() = default;
 
 			template <typename Iterator>
-			polygon_t(Iterator b_it, Iterator e_it, typename std::enable_if_t<!std::is_constructible_v<line_t<T>, Iterator>>* = 0)
+			polygon_t(Iterator b_it, Iterator e_it/*, typename std::enable_if_t<!std::is_constructible_v<line_t<T>, Iterator>>* = 0*/)
 			{
 				_value = value_type(b_it, e_it);
+				for (const auto& l : _value) is_ring(l);
 			}
 
 			polygon_t(std::initializer_list<line_t<T>> il)
 			{
 				_value = value_type(std::begin(il), std::end(il));
+				for (const auto& l : _value) is_ring(l);
 			}
 
 			value_type get() const
@@ -129,8 +119,12 @@ namespace geojson
 			friend std::ostream &operator<<(std::ostream &os, const polygon_t<T> &obj)
 			{
 				os << "{";
-				for (const auto& el : obj.get())
-					os << "{" << el << "}" << ",";
+				os << boost::algorithm::join(obj.get() | boost::adaptors::transformed([&](const auto& p)
+				{
+					std::stringstream ss;
+					ss << p;
+					return ss.str();
+				}), ",");
 				os << "}";
 				return os;
 			}
@@ -143,7 +137,7 @@ namespace geojson
 					throw std::runtime_error("is_ring() : expected [" + std::to_string(POLYGON_MIN_ELEMENTS) 
 						+ "] elements, got [" + std::to_string(l.get().size()) + "]");
 				}
-				if (*std::begin(l.get()) != *std::end(l.get()))
+				if (l.get().front() != l.get().back())
 				{
 					throw std::runtime_error("is_ring() : first and last elements should be the same");
 				}
@@ -160,13 +154,12 @@ namespace geojson
 		{
 			using value_type = Container;
 
-			template <typename...Args>
-			multiobject_t(Args...args)
-			{
-				static_assert(std::conjunction_v<std::is_constructible<U, Args>...>, __FUNCTION__);
+			multiobject_t() = default;
 
-				std::initializer_list<U> il{ args... };
-				_value = value_type(args...);
+			template <typename Iterator>
+			multiobject_t(Iterator b_it, Iterator e_it)
+			{
+				_value = value_type(b_it, e_it);
 			}
 
 			multiobject_t(std::initializer_list<U> il)
@@ -177,6 +170,19 @@ namespace geojson
 			value_type get() const
 			{
 				return _value;
+			}
+
+			friend std::ostream &operator<<(std::ostream &os, const multiobject_t<T, U, Container> &obj)
+			{
+				os << "{";
+				os << boost::algorithm::join(obj.get() | boost::adaptors::transformed([&](const auto& p)
+				{
+					std::stringstream ss;
+					ss << p;
+					return ss.str();
+				}), ",");
+				os << "}";
+				return os;
 			}
 
 		private:
