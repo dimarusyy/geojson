@@ -1,9 +1,12 @@
 #pragma once
 #include "primitives.h"
+#include "translator.h"
 
 #include <boost/blank.hpp>
 #include <boost/variant.hpp>
 #include <boost/mpl/vector.hpp>
+#include <boost/fusion/container/map.hpp>
+#include <boost/fusion/include/map.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 namespace geojson
@@ -13,14 +16,14 @@ namespace geojson
 		//////////////////////////////////////////////////////////////////////////
 
 		template <typename T>
-		struct geometry_t
+		struct object_t
 		{
 			using types = boost::mpl::vector<boost::blank, 
 				point_t<T>, line_t<T>, polygon_t<T>, multipoint_t<T>, multiline_t<T>, multipolygon_t<T>>;
 			using value_type = typename boost::make_variant_over<types>::type;
 
 			template <typename T>
-			geometry_t(T&& v)
+			object_t(T&& v)
 				: _value(std::forward<T>(v))
 			{
 			}
@@ -39,7 +42,7 @@ namespace geojson
 			operator boost::property_tree::ptree()
 			{
  				boost::property_tree::ptree node;
-// 				node.add_child(TYPE_KEY, )
+				boost::apply_visitor(add_to_node_visitor{node}, _value);
 				return node;
 			}
 
@@ -82,45 +85,45 @@ namespace geojson
 				static constexpr auto TYPE_KEY = "type";
 				static constexpr auto COORDINATES_KEY = "coordinates";
 
+				static const boost::fusion::map
+				<
+					boost::fusion::pair<point_t<T>, std::string>,
+					boost::fusion::pair<line_t<T>, std::string>,
+					boost::fusion::pair<polygon_t<T>, std::string>,
+					boost::fusion::pair<multipoint_t<T>, std::string>,
+					boost::fusion::pair<multiline_t<T>, std::string>,
+					boost::fusion::pair<multipolygon_t<T>, std::string>
+				>
+				node_type_names
+				{
+					boost::fusion::make_pair<point_t<T>>("Point"),
+					boost::fusion::make_pair<line_t<T>>("LineString"),
+					boost::fusion::make_pair<polygon_t<T>>("Polygon"),
+					boost::fusion::make_pair<multipoint_t<T>>("MultiPoint"),
+					boost::fusion::make_pair<multiline_t<T>>("MultiLineString"),
+					boost::fusion::make_pair<multipolygon_t<T>>("MultiPolygon"),
+				};
+				
+				add_to_node_visitor(boost::property_tree::ptree& node)
+					: _node(node)
+				{
+				}
+
 				void operator()(const boost::blank& v) const 
 				{
-					boost::property_tree::ptree node;
-					node.put(TYPE_KEY, "blank");
-					node.put(COORDINATES_KEY, nullptr);
-					return node;
+					throw std::runtime_error("can't add blank node");
 				}
 
-				void operator()(const point_t<T>& v) const
+				template <typename Primitive>
+				void operator()(const Primitive& v) const
 				{
-					boost::property_tree::ptree node;
-					node.put(TYPE_KEY, "Point");
-					node.put(COORDINATES_KEY, std::vector<T>{v._x, v._y});
-					return node;
+					details::translator_t<Primitive> t{};
+					_node.put(TYPE_KEY, boost::fusion::at_key<Primitive>(node_type_names));
+					_node.put(COORDINATES_KEY, t.put_value(v));
 				}
 
-				void operator()(const line_t<T>& v) const
-				{
-					boost::property_tree::ptree node;
-					node.put(TYPE_KEY, "Point");
-					node.put(COORDINATES_KEY, std::vector<T>{v._x, v._y});
-					return node;
-				}
-
-				void operator()(const polygon_t<T>& v) const
-				{
-				}
-
-				void operator()(const multipoint_t<T>& v) const
-				{
-				}
-
-				void operator()(const multiline_t<T>& v) const
-				{
-				}
-
-				void operator()(const multipolygon_t<T>& v) const
-				{
-				}
+				private:
+					boost::property_tree::ptree& _node;
 			};
 		};
 

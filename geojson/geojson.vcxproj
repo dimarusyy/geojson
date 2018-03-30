@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="details\geometry.h" />
+    <ClInclude Include="details\object.h" />
     <ClInclude Include="details\primitives.h" />
     <ClInclude Include="details\properties.h" />
     <ClInclude Include="details\translator.h" />

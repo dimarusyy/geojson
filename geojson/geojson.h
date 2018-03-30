@@ -1,7 +1,7 @@
 #pragma once
 
 #include "details/primitives.h"
-#include "details/geometry.h"
+#include "details/object.h"
 #include "details/translator.h"
 
 namespace geojson
@@ -29,7 +29,7 @@ namespace geojson
 	//////////////////////////////////////////////////////////////////////////
 
 	template <typename T = double>
-	using geometry_t = details::geometry_t<T>;
+	using object_t = details::object_t<T>;
 
 	//////////////////////////////////////////////////////////////////////////
 }

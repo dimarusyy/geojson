@@ -29,10 +29,10 @@
     <ClCompile Include="primitive-tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="geometry-tests.cpp">
+    <ClCompile Include="translators-tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="translators-tests.cpp">
+    <ClCompile Include="object-tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

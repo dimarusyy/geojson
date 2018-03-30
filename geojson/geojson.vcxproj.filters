@@ -27,10 +27,10 @@
     <ClInclude Include="details\properties.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
-    <ClInclude Include="details\geometry.h">
+    <ClInclude Include="details\translator.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
-    <ClInclude Include="details\translator.h">
+    <ClInclude Include="details\object.h">
       <Filter>Header Files\details</Filter>
     </ClInclude>
   </ItemGroup>
