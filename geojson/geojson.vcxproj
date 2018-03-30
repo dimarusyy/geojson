@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="details\feature.h" />
     <ClInclude Include="details\object.h" />
     <ClInclude Include="details\primitives.h" />
     <ClInclude Include="details\properties.h" />

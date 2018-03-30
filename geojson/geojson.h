@@ -2,6 +2,7 @@
 
 #include "details/primitives.h"
 #include "details/object.h"
+#include "details/feature.h"
 #include "details/translator.h"
 
 namespace geojson
@@ -30,6 +31,9 @@ namespace geojson
 
 	template <typename T = double>
 	using object_t = details::object_t<T>;
+
+	template <typename T = double>
+	using feature_t = details::feature_t<T>;
 
 	//////////////////////////////////////////////////////////////////////////
 }
