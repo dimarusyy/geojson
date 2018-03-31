@@ -23,6 +23,29 @@ namespace geojson
 				point_t<T>, line_t<T>, polygon_t<T>, multipoint_t<T>, multiline_t<T>, multipolygon_t<T>>;
 			using value_type = typename boost::make_variant_over<types>::type;
 
+			using object_type_names_t = boost::fusion::map
+			<
+				boost::fusion::pair<point_t<T>, std::string>,
+				boost::fusion::pair<line_t<T>, std::string>,
+				boost::fusion::pair<polygon_t<T>, std::string>,
+				boost::fusion::pair<multipoint_t<T>, std::string>,
+				boost::fusion::pair<multiline_t<T>, std::string>,
+				boost::fusion::pair<multipolygon_t<T>, std::string>
+			>;
+
+			constexpr static auto TYPE_KEY = "type";
+			constexpr static auto COORDINATES_KEY = "coordinates";
+
+			inline static object_type_names_t _object_type_names =
+			{
+				boost::fusion::make_pair<point_t<T>>("Point"),
+				boost::fusion::make_pair<line_t<T>>("LineString"),
+				boost::fusion::make_pair<polygon_t<T>>("Polygon"),
+				boost::fusion::make_pair<multipoint_t<T>>("MultiPoint"),
+				boost::fusion::make_pair<multiline_t<T>>("MultiLineString"),
+				boost::fusion::make_pair<multipolygon_t<T>>("MultiPolygon"),
+			};
+
 			template <typename T>
 			object_t(T&& v)
 				: _value(std::forward<T>(v))
@@ -134,9 +157,6 @@ namespace geojson
 
 			struct add_to_node_visitor : boost::static_visitor<boost::property_tree::ptree>
 			{
-				static constexpr auto TYPE_KEY = "type";
-				static constexpr auto COORDINATES_KEY = "coordinates";
-
 				add_to_node_visitor()
 				{
 				}
@@ -157,28 +177,9 @@ namespace geojson
 				}
 
 			private:
-				using object_type_names_t = boost::fusion::map
-				<
-					boost::fusion::pair<point_t<T>, std::string>,
-					boost::fusion::pair<line_t<T>, std::string>,
-					boost::fusion::pair<polygon_t<T>, std::string>,
-					boost::fusion::pair<multipoint_t<T>, std::string>,
-					boost::fusion::pair<multiline_t<T>, std::string>,
-					boost::fusion::pair<multipolygon_t<T>, std::string>
-				>;
-
 				template <typename Primitive>
 				std::string get_type_name() const
 				{
-					static object_type_names_t _object_type_names
-					{
-						boost::fusion::make_pair<point_t<T>>("Point"),
-						boost::fusion::make_pair<line_t<T>>("LineString"),
-						boost::fusion::make_pair<polygon_t<T>>("Polygon"),
-						boost::fusion::make_pair<multipoint_t<T>>("MultiPoint"),
-						boost::fusion::make_pair<multiline_t<T>>("MultiLineString"),
-						boost::fusion::make_pair<multipolygon_t<T>>("MultiPolygon"),
-					};
 					return boost::fusion::at_key<Primitive>(_object_type_names);
 				}
 			};
