@@ -36,8 +36,6 @@ namespace geojson
 				return node;
 			}
 
-
-
 		private:
 			object_t<T> _geometry;
 			boost::property_tree::ptree _properties;

@@ -24,4 +24,14 @@ BOOST_AUTO_TEST_CASE(object_move_create)
 	BOOST_ASSERT_MSG(g2.is_of_type<geojson::point_t<double>>(), "g2 is not of geojson::point_t type");
 }
 
+BOOST_AUTO_TEST_CASE(object_serialize)
+{
+	geojson::object_t<> obj_orig{ geojson::point_t<>{10, 2} };
+
+	std::stringstream ss;
+	ss << obj_orig;
+
+	BOOST_TEST_MESSAGE(ss.str());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -26,7 +26,7 @@ namespace geojson
 		//////////////////////////////////////////////////////////////////////////
 
 		namespace qi = boost::spirit::qi;
-		namespace phx = boost::phoenix;
+		namespace phx = boost::phoenix;	
 
 		//////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,6 @@ namespace geojson
 			boost::mpl::pair<typename multiline_t<T>, typename line_t<T>>,
 			boost::mpl::pair<typename multipolygon_t<T>, typename polygon_t<T>>
 		>;
-
 		//////////////////////////////////////////////////////////////////////////
 
 		template <typename T>
@@ -151,8 +150,8 @@ namespace geojson
 			//////////////////////////////////////////////////////////////////////////
 		};
 
-		template <typename TExternal>
-		using translator_t = impl::translator_t<TExternal>;
+		template <typename T, typename TExternal>
+		using translator_t = impl<T>::translator_t<TExternal>;
 
 		//////////////////////////////////////////////////////////////////////////
 	}
