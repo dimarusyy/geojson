@@ -8,17 +8,17 @@ BOOST_AUTO_TEST_SUITE(translators_tests)
 using namespace geojson;
 
 template <typename Iterator, typename Skipper>
-using point_t_grammar = details::impl<double>::parser_t<Iterator, Skipper, point_t<double>>;
+using point_t_grammar = details::parser_t<Iterator, Skipper, point_t<double>>;
 
 template <typename Iterator, typename Skipper>
-using line_t_grammar = details::impl<double>::parser_t<Iterator, Skipper, line_t<double>>;
+using line_t_grammar = details::parser_t<Iterator, Skipper, line_t<double>>;
 
 template <typename Iterator, typename Skipper>
-using polygon_t_grammar = details::impl<double>::parser_t<Iterator, Skipper, polygon_t<double>>;
+using polygon_t_grammar = details::parser_t<Iterator, Skipper, polygon_t<double>>;
 
-using point_translator_t = details::impl<double>::translator_t<point_t<double>>;
-using line_translator_t = details::impl<double>::translator_t<line_t<double>>;
-using polygon_translator_t = details::impl<double>::translator_t<polygon_t<double>>;
+using point_translator_t = details::translator_t<point_t<double>>;
+using line_translator_t = details::translator_t<line_t<double>>;
+using polygon_translator_t = details::translator_t<polygon_t<double>>;
 
 BOOST_AUTO_TEST_CASE(translator_point_t_serialize)
 {

@@ -22,12 +22,10 @@ namespace geojson
 			constexpr static auto TYPE_KEY = "type";
 			constexpr static auto COORDINATES_KEY = "coordinates";
 
-			using types = boost::mpl::vector<boost::blank,
-				point_t<T>, line_t<T>, polygon_t<T>, multipoint_t<T>, multiline_t<T>, multipolygon_t<T>>;
+			using types = boost::mpl::vector<point_t<T>, line_t<T>, polygon_t<T>, multipoint_t<T>, multiline_t<T>, multipolygon_t<T>>;
 			using value_type = typename boost::make_variant_over<types>::type;
 
 			object_t()
-				: _value{ boost::blank{} }
 			{
 			}
 
@@ -104,18 +102,17 @@ namespace geojson
 			template <typename Primitive>
 			void construct_impl(const boost::property_tree::ptree& root)
 			{
-				translator_t<Primitive::base_type, Primitive> tr{};
+				translator_t<Primitive> tr{};
 				_value = root.get<Primitive>(COORDINATES_KEY, tr);
 			}
 
 		private:
-			value_type _value{ boost::blank{} };
+			value_type _value{};
 
 			template <typename U>
 			bool is_of_type(typename value_type v) const
 			{
 				const auto rc =
-					std::is_same_v<U, boost::blank> ||
 					std::is_same_v<U, point_t<T>> ||
 					std::is_same_v<U, line_t<T>> ||
 					std::is_same_v<U, polygon_t<T>> ||
@@ -169,22 +166,13 @@ namespace geojson
 
 			struct add_to_node_visitor : boost::static_visitor<boost::property_tree::ptree>
 			{
-				add_to_node_visitor()
-				{
-				}
-
-				boost::property_tree::ptree operator()(const boost::blank& v) const
-				{
-					throw std::runtime_error("can't add blank node");
-				}
-
 				template <typename Primitive>
 				boost::property_tree::ptree operator()(const Primitive& v) const
 				{
-					details::translator_t<Primitive::base_type, Primitive> tr{};
+					details::translator_t<Primitive> tr{};
 					boost::property_tree::ptree node;
 					node.put(TYPE_KEY, get_type_name<Primitive>());
-					node.put(COORDINATES_KEY, tr.put_value(v));
+					node.put(COORDINATES_KEY, v, tr);
 					return node;
 				}
 			};
