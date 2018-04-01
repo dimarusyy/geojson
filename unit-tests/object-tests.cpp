@@ -31,7 +31,24 @@ BOOST_AUTO_TEST_CASE(object_serialize)
 	std::stringstream ss;
 	ss << obj_orig;
 
-	BOOST_TEST_MESSAGE(ss.str());
+	auto result = ss.str();
+	BOOST_TEST_MESSAGE(result);
+	BOOST_ASSERT_MSG(!result.empty(), "serialization string should not be empty");
+
+	geojson::object_t<> obj;
+	ss >> obj;
+
+	BOOST_TEST_MESSAGE("deserialized");
+}
+
+BOOST_AUTO_TEST_CASE(object_deserialize)
+{
+	std::string ser_str("{ \"type\": \"Point\", \"coordinates\": [10,2]}");
+	geojson::object_t<> obj;
+
+	std::stringstream ss;
+	ss << ser_str;
+	ss >> obj;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

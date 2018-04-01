@@ -17,7 +17,8 @@ namespace geojson
 		template <typename T>
 		struct point_t
 		{
-			using value_type = typename T;
+			using base_type = T;
+			using value_type = T;
 			
 			value_type _x;
 			value_type _y;
@@ -54,6 +55,7 @@ namespace geojson
 		template <typename T>
 		struct line_t
 		{
+			using base_type = T;
 			using value_type = std::vector<point_t<T>>;
 			
 			line_t() = default;
@@ -94,6 +96,7 @@ namespace geojson
 		struct polygon_t
 		{
 			static const size_t POLYGON_MIN_ELEMENTS = 4U;
+			using base_type = T;
 			using value_type = std::vector<line_t<T>>;
 
 			polygon_t() = default;
@@ -152,6 +155,7 @@ namespace geojson
 		template <typename T, typename U, typename Container = std::vector<U>>
 		struct multiobject_t
 		{
+			using base_type = T;
 			using value_type = Container;
 
 			multiobject_t() = default;

@@ -19,65 +19,50 @@ namespace geojson
 		template <typename T>
 		struct object_t
 		{
+			constexpr static auto TYPE_KEY = "type";
+			constexpr static auto COORDINATES_KEY = "coordinates";
+
 			using types = boost::mpl::vector<boost::blank,
 				point_t<T>, line_t<T>, polygon_t<T>, multipoint_t<T>, multiline_t<T>, multipolygon_t<T>>;
 			using value_type = typename boost::make_variant_over<types>::type;
 
-			using object_type_names_t = boost::fusion::map
-			<
-				boost::fusion::pair<point_t<T>, std::string>,
-				boost::fusion::pair<line_t<T>, std::string>,
-				boost::fusion::pair<polygon_t<T>, std::string>,
-				boost::fusion::pair<multipoint_t<T>, std::string>,
-				boost::fusion::pair<multiline_t<T>, std::string>,
-				boost::fusion::pair<multipolygon_t<T>, std::string>
-			>;
-
-			constexpr static auto TYPE_KEY = "type";
-			constexpr static auto COORDINATES_KEY = "coordinates";
-
-			inline static object_type_names_t _object_type_names =
+			object_t()
+				: _value{ boost::blank{} }
 			{
-				boost::fusion::make_pair<point_t<T>>("Point"),
-				boost::fusion::make_pair<line_t<T>>("LineString"),
-				boost::fusion::make_pair<polygon_t<T>>("Polygon"),
-				boost::fusion::make_pair<multipoint_t<T>>("MultiPoint"),
-				boost::fusion::make_pair<multiline_t<T>>("MultiLineString"),
-				boost::fusion::make_pair<multipolygon_t<T>>("MultiPolygon"),
-			};
+			}
 
 			template <typename T>
-			object_t(T&& v)
+			object_t(T&& v, typename std::enable_if_t<!std::is_same_v<std::remove_reference_t<T>, boost::property_tree::ptree>>* = 0)
 				: _value(std::forward<T>(v))
 			{
 			}
 
 			object_t(const boost::property_tree::ptree& root)
 			{
-				auto root_type = t.get_child<std::string>(TYPE_KEY);
+				const auto root_type = root.get<std::string>(TYPE_KEY);
 				if (root_type == get_type_name<point_t<T>>())
 				{
-					construct_impl<point_t<T>>();
+					construct_impl<point_t<T>>(root);
 				}
 				else if (root_type == get_type_name<line_t<T>>())
 				{
-					construct_impl<line_t<T>>();
+					construct_impl<line_t<T>>(root);
 				}
 				else if (root_type == get_type_name<polygon_t<T>>())
 				{
-					construct_impl<polygon_t<T>>();
+					construct_impl<polygon_t<T>>(root);
 				}
 				else if (root_type == get_type_name<multipoint_t<T>>())
 				{
-					construct_impl<multipoint_t<T>>();
+					construct_impl<multipoint_t<T>>(root);
 				}
 				else if (root_type == get_type_name<multiline_t<T>>())
 				{
-					construct_impl<multiline_t<T>>();
+					construct_impl<multiline_t<T>>(root);
 				}
 				else if (root_type == get_type_name<multipolygon_t<T>>())
 				{
-					construct_impl<multipolygon_t<T>>();
+					construct_impl<multipolygon_t<T>>(root);
 				}
 				else
 				{
@@ -109,21 +94,22 @@ namespace geojson
 
 			friend std::istream& operator>> (std::istream& is, object_t<T>& obj)
 			{
-				boost::property_tree::ptree t;
-				boost::property_tree::read_json(os, t);
+				boost::property_tree::ptree pt;
+				boost::property_tree::read_json(is, pt);
+				obj = object_t<T>(pt);
 				return is;
 			}
-		
+
 		protected:
-			template <typename T>
+			template <typename Primitive>
 			void construct_impl(const boost::property_tree::ptree& root)
 			{
-				impl::translator_t<T> tr{};
-				_value = root.get<T>(COORDINATES_KEY, tr);
+				translator_t<Primitive::base_type, Primitive> tr{};
+				_value = root.get<Primitive>(COORDINATES_KEY, tr);
 			}
 
 		private:
-			value_type _value{ boost::blank };
+			value_type _value{ boost::blank{} };
 
 			template <typename U>
 			bool is_of_type(typename value_type v) const
@@ -138,6 +124,32 @@ namespace geojson
 					std::is_same_v<U, multipolygon_t<T>>;
 				static_assert(rc, "wrong parameter passed");
 				return boost::apply_visitor(is_of_type_visitor<U>{}, v);
+			}
+
+			using object_type_names_t = boost::fusion::map
+			<
+				boost::fusion::pair<point_t<T>, std::string>,
+				boost::fusion::pair<line_t<T>, std::string>,
+				boost::fusion::pair<polygon_t<T>, std::string>,
+				boost::fusion::pair<multipoint_t<T>, std::string>,
+				boost::fusion::pair<multiline_t<T>, std::string>,
+				boost::fusion::pair<multipolygon_t<T>, std::string>
+			>;
+
+			inline static object_type_names_t _object_type_names =
+			{
+				boost::fusion::make_pair<point_t<T>>("Point"),
+				boost::fusion::make_pair<line_t<T>>("LineString"),
+				boost::fusion::make_pair<polygon_t<T>>("Polygon"),
+				boost::fusion::make_pair<multipoint_t<T>>("MultiPoint"),
+				boost::fusion::make_pair<multiline_t<T>>("MultiLineString"),
+				boost::fusion::make_pair<multipolygon_t<T>>("MultiPolygon"),
+			};
+
+			template <typename Primitive>
+			static auto get_type_name()
+			{
+				return boost::fusion::at_key<Primitive>(_object_type_names);
 			}
 
 			template <typename TTrue>
@@ -169,18 +181,11 @@ namespace geojson
 				template <typename Primitive>
 				boost::property_tree::ptree operator()(const Primitive& v) const
 				{
+					details::translator_t<Primitive::base_type, Primitive> tr{};
 					boost::property_tree::ptree node;
-					details::translator_t<T, Primitive> t{};
 					node.put(TYPE_KEY, get_type_name<Primitive>());
-					node.put(COORDINATES_KEY, t.put_value(v));
+					node.put(COORDINATES_KEY, tr.put_value(v));
 					return node;
-				}
-
-			private:
-				template <typename Primitive>
-				std::string get_type_name() const
-				{
-					return boost::fusion::at_key<Primitive>(_object_type_names);
 				}
 			};
 		};
