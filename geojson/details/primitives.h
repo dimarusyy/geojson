@@ -19,6 +19,7 @@ namespace geojson
 		{
 			using base_type = T;
 			using value_type = T;
+			using container_type = T;
 			
 			value_type _x;
 			value_type _y;
@@ -57,6 +58,7 @@ namespace geojson
 		{
 			using base_type = T;
 			using value_type = std::vector<point_t<T>>;
+			using container_type = std::vector<typename point_t<T>::container_type>;
 			
 			line_t() = default;
 
@@ -98,6 +100,7 @@ namespace geojson
 			static const size_t POLYGON_MIN_ELEMENTS = 4U;
 			using base_type = T;
 			using value_type = std::vector<line_t<T>>;
+			using container_type = std::vector<typename line_t<T>::container_type>;
 
 			polygon_t() = default;
 
@@ -157,6 +160,7 @@ namespace geojson
 		{
 			using base_type = T;
 			using value_type = Container;
+			using container_type = std::vector<typename U::container_type>;
 
 			multiobject_t() = default;
 

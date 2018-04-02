@@ -41,14 +41,14 @@ BOOST_AUTO_TEST_CASE(object_serialize)
 	BOOST_TEST_MESSAGE("deserialized");
 }
 
-// BOOST_AUTO_TEST_CASE(object_deserialize)
-// {
-// 	std::string ser_str("{ \"type\": \"Point\", \"coordinates\": [10,2]}");
-// 	geojson::object_t<> obj;
-// 
-// 	std::stringstream ss;
-// 	ss << ser_str;
-// 	ss >> obj;
-// }
+ BOOST_AUTO_TEST_CASE(object_deserialize)
+ {
+ 	std::string ser_str("{ \"type\": \"LineString\", \"coordinates\": [[10,2], [11,3]]}");
+ 	geojson::object_t<> obj;
+ 
+ 	std::stringstream ss;
+ 	ss << ser_str;
+ 	ss >> obj;
+ }
 
 BOOST_AUTO_TEST_SUITE_END()
